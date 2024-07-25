@@ -63,8 +63,9 @@ public class MainWindowViewModel : ViewModelBase
 {
     private readonly ICreateEntityFactory _createEntityFactory;
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(ICreateEntityFactory createEntityFactory)
     {
+        _createEntityFactory = createEntityFactory;
         BlogEntities = _createEntityFactory.CreateBlogEntities();
         NewsEntities = _createEntityFactory.CreateNewsEntities();
     }
