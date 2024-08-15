@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\1\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\root\\dotnet\\ZipArchivator\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DEC62B02-8EF8-4DBF-9FB3-380B2379F8CD}|ZipArchivator.csproj|c:\\users\\1\\onedrive\\\u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\root\\dotnet\\ziparchivator\\archivator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DEC62B02-8EF8-4DBF-9FB3-380B2379F8CD}|ZipArchivator.csproj|solutionrelative:archivator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DEC62B02-8EF8-4DBF-9FB3-380B2379F8CD}|ZipArchivator.csproj|c:\\users\\1\\onedrive\\\u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\root\\dotnet\\ziparchivator\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DEC62B02-8EF8-4DBF-9FB3-380B2379F8CD}|ZipArchivator.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\1\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\root\\dotnet\\ZipArchivator\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\1\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\root\\dotnet\\ZipArchivator\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-14T20:26:52.312Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Archivator.cs",
+              "DocumentMoniker": "C:\\Users\\1\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\root\\dotnet\\ZipArchivator\\Archivator.cs",
+              "RelativeDocumentMoniker": "Archivator.cs",
+              "ToolTip": "C:\\Users\\1\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\root\\dotnet\\ZipArchivator\\Archivator.cs",
+              "RelativeToolTip": "Archivator.cs",
+              "ViewState": "AQIAAAIAAAAAAAAAAAAAABUAAAAzAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-14T20:28:22.797Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
