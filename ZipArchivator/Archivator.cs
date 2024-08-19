@@ -19,26 +19,18 @@ class Archivator
 
         Validate(fileName);
 
-        FileStream originalStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-        FileStream outputStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write);
-        GZipStream gZipStream = new GZipStream(outputStream, CompressionMode.Compress); 
+        using FileStream originalStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+        using FileStream outputStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write);
+        using GZipStream gZipStream = new GZipStream(outputStream, CompressionMode.Compress);
         originalStream.CopyTo(gZipStream);
-
-        originalStream.Dispose();   
-        outputStream.Dispose(); 
-        gZipStream.Dispose();
     }
 
     public void Unarchive(string fileName)
     {
-        FileStream originalStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read);
-        FileStream outputStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-        GZipStream gZipStream = new GZipStream(originalStream, CompressionMode.Decompress);
+        using FileStream originalStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read);
+        using FileStream outputStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+        using GZipStream gZipStream = new GZipStream(originalStream, CompressionMode.Decompress);
         gZipStream.CopyTo(outputStream);
-
-        originalStream.Dispose();
-        outputStream.Dispose();
-        gZipStream.Dispose();
     }
 
 

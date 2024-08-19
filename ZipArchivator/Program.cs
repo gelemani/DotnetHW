@@ -4,12 +4,13 @@ namespace ZipArchivator;
 
 class Program
 {
-    private const string originalPath = "C:\\Users\\1\\OneDrive\\Документы\\root\\portfolio\\index.html";
-    
+    private const string originalPath = "index.html";
+    private const string decompressedPath = "index2.html";
+
     public static void Main(string[] args)
     {
         Archivator archivator = new Archivator();
-        //archivator.Archive(originalPath);
-        archivator.Unarchive("index.html");
+        archivator.Archive(originalPath);
+        archivator.Unarchive(decompressedPath);
     }
 }
