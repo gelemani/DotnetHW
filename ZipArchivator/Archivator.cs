@@ -8,6 +8,7 @@ namespace ZipArchivator;
 class Archivator
 {
     private const string zipPath = "blablabla.7z";
+    public const string lasertagMusicPath = "Hydrogen.mp3";
 
     public void Archive(string fileName)
     {
@@ -19,10 +20,31 @@ class Archivator
 
         Validate(fileName);
 
-        using FileStream originalStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-        using FileStream outputStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write);
-        using GZipStream gZipStream = new GZipStream(outputStream, CompressionMode.Compress);
-        originalStream.CopyTo(gZipStream);
+        //using FileStream originalStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+        //using FileStream outputStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write);
+        //using GZipStream gZipStream = new GZipStream(outputStream, CompressionMode.Compress);
+        //originalStream.CopyTo(gZipStream);
+
+        var buffer = new byte[1024 * 1024];
+        using (FileStream originalStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+        {
+            using (FileStream outputStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
+            {
+                int bytesRead;
+                while ((bytesRead = originalStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    using (MemoryStream ms = new MemoryStream()) 
+                    {
+                        using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Compress))
+                        { 
+                            gZipStream.Write(buffer, 0, buffer.Length);
+                        }
+                        var compressedBuffer = ms.ToArray();
+                        outputStream.Write(compressedBuffer, 0, compressedBuffer.Length);
+                    }
+                }
+            }
+        }
     }
 
     public void Unarchive(string fileName)

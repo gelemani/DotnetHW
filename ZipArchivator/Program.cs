@@ -4,8 +4,8 @@ namespace ZipArchivator;
 
 class Program
 {
-    private const string originalPath = "index.html";
-    private const string decompressedPath = "index2.html";
+    private const string originalPath = "Hydrogen.mp3";
+    private const string decompressedPath = "Hydrogen2.mp3";
 
     public static void Main(string[] args)
     {
