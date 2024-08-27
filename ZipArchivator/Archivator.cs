@@ -47,13 +47,33 @@ class Archivator
         }
     }
 
-    public void Unarchive(string fileName)
+    public void Unarchive(string zipPath)
     {
-        using FileStream originalStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read);
-        using FileStream outputStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-        using GZipStream gZipStream = new GZipStream(originalStream, CompressionMode.Decompress);
-        gZipStream.CopyTo(outputStream);
-    }
+        //using FileStream originalStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read);
+        //using FileStream outputStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+        //using GZipStream gZipStream = new GZipStream(originalStream, CompressionMode.Decompress);
+        //gZipStream.CopyTo(outputStream);
+
+        var buffer = new byte[1024 * 1024];
+        using (FileStream originalStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read))
+        {
+            using (FileStream outputStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+            {
+                int bytesRead;
+                while ((bytesRead = originalStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Compress))
+                        {
+                            gZipStream.Write(buffer, 0, buffer.Length);
+                        }
+                        var compressedBuffer = ms.ToArray();
+                        outputStream.Write(compressedBuffer, 0, compressedBuffer.Length);
+                    }
+                }
+            }
+        }
 
 
     static void Validate(string fileName)
