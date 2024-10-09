@@ -1,162 +1,140 @@
 using System.IO.Compression;
-using System.IO;
-using System;
-using System.Collections.Generic;
-using System.Data;
 
-namespace ZipArchivator
+namespace ZipArchivator;
+
+class Archivator
 {
-    class Archivator
-    {
-        private const string zipPath = "blablabla.7z";
-        public const string lasertagMusicPath = "Hydrogen.mp3";
-        private const int _bufferSize = 1024 * 1024;
-
-        public void Archive(string fileName)
-        {
-            Validate(fileName);
-
-            var fileSize = new FileInfo(fileName).Length;
-            int iterations = (int)(fileSize / _bufferSize);
-            int remainder = (int)(fileSize % _bufferSize);
-            var buffer = new byte[_bufferSize];
-
-            Queue<byte[]> blocksRead = new(iterations + 1);
-
-            // вакуумирование и транспортировка вещей из шкафа на багажную ленту 
-            ReadFileAndArchiveBlocks(fileName, iterations, remainder, buffer, blocksRead);
-
-            // транспортировка вещей с ленты в чемодан
-            WriteBlocksToOutputFile(blocksRead);
-        }
-
-        private void ReadFileAndArchiveBlocks(string fileName, int iterations, int remainder, byte[] buffer, Queue<byte[]> blocksRead)
-        {
-            using (FileStream originalStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-            {
-                int bytesRead;
-                for (int i = 0; i < iterations; i++)
-                {
-                    bytesRead = originalStream.Read(buffer, 0, buffer.Length); //из шкафа достаю 1 предмет (1мб)
-                    using (MemoryStream ms = new MemoryStream()) //управление памятью
-                    {
-                        using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Compress)) //вакуумируем вещь из шкафа
-                        {
-                            gZipStream.Write(buffer, 0, buffer.Length); // buffer - вещь из шкафа (в руках держу) и выкачюваю воздух
-                        }
-                        var compressedBuffer = ms.ToArray(); //Ура! вытянутый воздух 
-                        blocksRead.Enqueue(compressedBuffer); // кладем вакуумированную вещь на багажную ленту
-                    }
-                }
-
-                //онли фор литл фингс (< 1 mb)
-                bytesRead = originalStream.Read(buffer, 0, remainder); // то что меньше 1 мб надо тоже положить 
-                using (MemoryStream ms = new MemoryStream()) //управление памятью
-                {
-                    using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Compress)) //вакуумируем вещь из шкафа
-                    {
-                        gZipStream.Write(buffer, 0, remainder); // из той маленькой вещи (которую в руках держу) я выкачюваю воздух
-                    }
-                    var compressedBuffer = ms.ToArray(); //Ура! вытянутый воздух 
-                    blocksRead.Enqueue(compressedBuffer); // кладем вакуумированную вещь на багажную ленту
-                }
-
-            }
-        }
+    // private const string ZipPath = "blablabla.7z";
+    // public const string LasertagMusicPath = "Hydrogen.mp3";
+    private const int BufferSize = 1024 * 1024;
+    private int _iterations;
+    private int _remainder;
+    private byte[] _buffer = new byte[BufferSize];
+    private long _fileSize;
+    private Queue<byte[]> _blocksRead = new();
         
-        private static void WriteBlocksToOutputFile(Queue<byte[]> blocksRead)
+    public void Archive(string sourceFileName)
+    {
+        Validate(sourceFileName);
+
+        string destinationFileName = GetDestinationFileNameArchive(sourceFileName);
+
+        _fileSize = new FileInfo(sourceFileName).Length; 
+        _iterations = (int)(_fileSize / BufferSize);
+        _remainder = (int)(_fileSize % BufferSize);
+
+        _blocksRead = new(_iterations + 1);
+
+        // вакуумирование и транспортировка вещей из шкафа на багажную ленту 
+        ReadFileAndGZipProcess(sourceFileName, GZipCompress);
+
+        // транспортировка вещей с ленты в чемодан
+        WriteBlocksToOutputFile(destinationFileName);
+    }
+
+    public void Unarchive(string sourceFileName)
+    {
+        Validate(sourceFileName);
+        
+        string destinationFileName = GetDestinationFileNameUnarchive(sourceFileName);
+            
+        _fileSize = new FileInfo(sourceFileName).Length; 
+        _iterations = (int)(_fileSize / BufferSize);
+        _remainder = (int)(_fileSize % BufferSize);
+            
+        _blocksRead = new(_iterations + 1);
+
+        // вакуумирование и транспортировка вещей из шкафа на багажную ленту 
+        ReadFileAndGZipProcess(sourceFileName, GZipDecompress);
+
+        // транспортировка вещей с ленты в чемодан
+        WriteBlocksToOutputFile(destinationFileName);
+    }
+
+    private void ReadFileAndGZipProcess(
+        string fileName,
+        Action<int> gzipAction)
+    {    
+        using (FileStream originalStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
         {
-            using (FileStream outputStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
+            for (int i = 0; i < _iterations; i++)
             {
-                while (blocksRead.Count() > 0) // пока на ленте что-то есть
-                {
-                    var currentBlock = blocksRead.Dequeue(); // снять с багажной ленты
-                    outputStream.Write(currentBlock, 0, currentBlock.Length); // положить в чемодан
-                }
-            }
-        }
-
-        public void Unarchive(string zipPath)
-        {
-            Validate(zipPath);
-
-            //using FileStream originalStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read);
-            //using FileStream outputStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-            //using GZipStream gZipStream = new GZipStream(originalStream, CompressionMode.Decompress);
-            //gZipStream.CopyTo(outputStream);
-
-            string fileName = lasertagMusicPath;
-            var fileSize = new FileInfo(zipPath).Length;
-            var buffer = new byte[_bufferSize];
-
-            using (FileStream originalStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read))
-            {
-                using (FileStream outputStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-                {
-                    int bytesRead;
-                    int iterations = (int)(fileSize / _bufferSize);
-                    int remainder = (int)(fileSize % _bufferSize);
-
-                    Queue<byte[]> blocksRead = new(iterations + 1);
-
-                    for (int i = 0; i < iterations; i++)
-                    {
-                        bytesRead = originalStream.Read(buffer, 0, buffer.Length);
-                        blocksRead.Enqueue((byte[])buffer.Clone());
-                    }
-
-                    bytesRead = originalStream.Read(buffer, 0, remainder);
-                    blocksRead.Enqueue((byte[])buffer.Clone());
-
-                    while (blocksRead.Count() > 0)
-                    {
-                        using (MemoryStream ms = new MemoryStream())
-                        {
-                            var currentBlock = blocksRead.Dequeue();
-                            using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Compress))
-                            {
-                                gZipStream.Write(currentBlock, 0, currentBlock.Length);
-                            }
-
-                            var compressedBuffer = ms.ToArray();
-                            outputStream.Write(compressedBuffer, 0, compressedBuffer.Length);
-                        }
-                    }
-
-                    while ((bytesRead = originalStream.Read(buffer, 0, buffer.Length)) > 0)
-                    {
-                        using (MemoryStream ms = new MemoryStream())
-                        {
-                            using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Compress))
-                            {
-                                gZipStream.Write(buffer, 0, buffer.Length);
-                            }
-
-                            var compressedBuffer = ms.ToArray();
-                            outputStream.Write(compressedBuffer, 0, compressedBuffer.Length);
-                        }
-                    }
-                }
-            }
-        }
-
-        static void Validate(string fileName)
-        {
-            if (!File.Exists(fileName))
-            {
-                throw new FileNotFoundException();
+                _ = originalStream.Read(_buffer, 0, _buffer.Length); //из шкафа достаю 1 предмет (1мб)
+                gzipAction(_buffer.Length);
             }
 
-            if (ifArchive(fileName))
+            //онли фор литл фингс (< 1 mb)
+            _ = originalStream.Read(_buffer, 0, _remainder); // то что меньше 1 мб надо тоже положить 
+            gzipAction(_remainder);
+        }
+    }
+
+    private void GZipCompress(int chunkSize)
+    {
+        using (MemoryStream ms = new MemoryStream()) //управление памятью
+        {
+            using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Compress)) //вакуумируем вещь из шкафа
             {
-                throw new Exception();
+                gZipStream.Write(_buffer, 0,
+                    chunkSize); // buffer - вещь из шкафа (в руках держу) и выкачюваю воздух
+            }
+            var processedBuffer = ms.ToArray(); //Ура! вытянутый воздух 
+            _blocksRead.Enqueue(processedBuffer); // кладем вакуумированную вещь на багажную ленту 
+        }
+    }
+    
+    private void GZipDecompress(int chunkSize)
+    {
+        using (MemoryStream ms = new MemoryStream()) //управление памятью
+        {
+            using (GZipStream gZipStream = new GZipStream(ms, CompressionMode.Decompress)) //вакуумируем вещь из шкафа
+            {
+                _ = gZipStream.Read(_buffer, 0,
+                    chunkSize); // buffer - вещь из шкафа (в руках держу) и выкачюваю воздух
+            }
+            var processedBuffer = ms.ToArray(); //Ура! вытянутый воздух 
+            _blocksRead.Enqueue(processedBuffer); // кладем вакуумированную вещь на багажную ленту 
+        }
+    }
+
+    private void WriteBlocksToOutputFile(string destinationFileName)
+    {
+        using (FileStream outputStream = new FileStream(destinationFileName, FileMode.Create, FileAccess.Write))
+        {
+            while (_blocksRead.Count() > 0) // пока на ленте что-то есть
+            {
+                var currentBlock = _blocksRead.Dequeue(); // снять с багажной ленты
+                outputStream.Write(currentBlock, 0, currentBlock.Length); // положить в чемодан
             }
         }
+    }
 
-        static bool ifArchive(string fileName)
+    private static string GetDestinationFileNameArchive(string sourceFileName)
+    {
+        return sourceFileName + ".gz";
+    }
+        
+    private static string GetDestinationFileNameUnarchive(string sourceFileName)
+    {
+        return sourceFileName[0..^3];
+    }
+        
+    static void Validate(string fileName)
+    {
+        if (!File.Exists(fileName))
         {
-            return false;
-
+            throw new FileNotFoundException();
         }
+
+        if (IfArchive(fileName))
+        {
+            throw new Exception();
+        }
+    }
+
+    static bool IfArchive(string fileName)
+    {
+        return false;
+
     }
 }
